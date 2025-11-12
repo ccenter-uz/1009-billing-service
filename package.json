@@ -1,0 +1,19 @@
+{
+  "name": "billing-data-script",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node run-cron.js",
+    "instant": "node run-main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "axios": "^1.7.9",
+    "basic-ftp": "^5.0.5",
+    "dotenv": "^17.2.3",
+    "iconv-lite": "^0.6.3",
+    "xlsx": "^0.18.5"
+  }
+}
