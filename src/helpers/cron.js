@@ -9,7 +9,7 @@ function scheduleMidnightJob(func) {
   next.setHours(4, 0, 0, 0); // 04:00
 
   if (next <= now) {
-    next.setDate(next.getDate() + 1);
+    next.setDate(next.getDate() + 1)
   }
 
   const delay = next.getTime() - now.getTime();
