@@ -20,13 +20,24 @@ function scheduleMidnightJob(func) {
 
   setTimeout(async () => {
     try {
+      if (typeof func !== "function") {
+        console.error(
+          "Scheduled job target is not a function:",
+          typeof func,
+          func
+        );
+        // Do not reschedule when the provided target is invalid
+        return;
+      }
+
       await func();
       console.log("Job completed successfully");
     } catch (err) {
       console.error("Job failed:", err);
     }
 
-    scheduleMidnightJob(func);
+    // only reschedule if func is still a function
+    if (typeof func === "function") scheduleMidnightJob(func);
   }, delay);
 }
 

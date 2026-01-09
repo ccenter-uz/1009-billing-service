@@ -38,11 +38,20 @@ async function requestToGateWay() {
       };
 
       // Выполняем POST-запрос
-      console.log(data);
+      console.log(data.slice(-200));
+
+      let payload;
+      try {
+        payload = JSON.parse(data); // Парсим JSON из файла
+      } catch (parseErr) {
+        console.error("Failed to parse data.json:", parseErr.message);
+        console.error("data length:", data.length, "tail:", data.slice(-200));
+        return { status: "ERROR: bad data", error: parseErr.message };
+      }
 
       let response = await axios.post(
         process.env.BACKEND_URL + "/v1/ftp/create-organizations",
-        JSON.parse(data), // Парсим JSON из файла
+        payload,
         { headers }
       );
       // Выводим только данные ответа
@@ -53,6 +62,7 @@ async function requestToGateWay() {
     }
   } catch (error) {
     console.error("Error occurred:", error);
+    return { status: "ERROR", error: error.message };
   }
 }
 module.exports = requestToGateWay;

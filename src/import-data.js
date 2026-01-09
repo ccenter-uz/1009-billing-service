@@ -1,5 +1,6 @@
 const iconv = require("iconv-lite");
 const fs = require("fs");
+const fsPromises = require("fs").promises;
 const path = require("path");
 const os = require("os");
 const ftp = require("basic-ftp");
@@ -77,9 +78,9 @@ async function processCsvFiles(client, fileSuffix, maxFiles) {
         // Read the file in the original encoding (e.g., windows-1251)
         const fileBuffer = fs.readFileSync(localFilePath);
 
-        // Decode to UTF-8
-        const utf8Content = iconv.decode(fileBuffer, "utf8");
-        console.log("utf8Content", utf8Content);
+        // Decode from the original encoding (windows-1251) to UTF-8
+        const utf8Content = iconv.decode(fileBuffer, "windows-1251");
+        console.log("decoded content sample:", utf8Content.slice(0, 200));
 
         // Parse CSV content directly
 
@@ -153,21 +154,25 @@ async function importData() {
   const filteredCreate = filterNullValues(create);
   const filteredDeactive = filterNullValues(deactive);
   const filteredUpdate = filterNullValues(update);
-  fs.writeFile(
-    path.join(__dirname, "..", "data.json"),
-    JSON.stringify({
-      new: filteredCreate,
-      deactive: filteredDeactive,
-      update: filteredUpdate,
-    }),
-    (err) => {
-      if (err) {
-        console.error("Error writing file:", err);
-      } else {
-        console.log("File written successfully!");
-      }
-    }
-  );
+  const finalPath = path.join(__dirname, "..", "data.json");
+  const tmpPath = finalPath + ".tmp";
+
+  try {
+    // write to a temp file first and then rename to make the write atomic
+    await fsPromises.writeFile(
+      tmpPath,
+      JSON.stringify({
+        new: filteredCreate,
+        deactive: filteredDeactive,
+        update: filteredUpdate,
+      })
+    );
+    await fsPromises.rename(tmpPath, finalPath);
+    console.log("File written successfully!");
+  } catch (err) {
+    console.error("Error writing file:", err);
+    throw err; // surface the error so callers know write failed
+  }
 
   return { status: "OK" };
 }
