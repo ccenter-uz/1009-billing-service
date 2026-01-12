@@ -6,7 +6,7 @@ function scheduleMidnightJob(func) {
   const now = new Date();
 
   const next = new Date();
-  next.setHours(13, 32, 0, 0); // 04:00
+  next.setHours(14, 58, 0, 0); // 04:00
 
   if (next <= now) {
     next.setDate(next.getDate() + 1);
